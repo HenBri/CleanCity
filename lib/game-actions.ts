@@ -4,9 +4,9 @@ export function canContaminate(gameState: GameState, playerId: string): Position
   const player = gameState.players.find((p) => p.id === playerId)
   if (!player || player.role !== "contaminator") return null
 
-  // Check adjacent cells for clean trash cans
+ 
   const adjacentPositions = [
-    { x: player.position.x, y: player.position.y }, // Same cell
+    { x: player.position.x, y: player.position.y }, 
     { x: player.position.x + 1, y: player.position.y },
     { x: player.position.x - 1, y: player.position.y },
     { x: player.position.x, y: player.position.y + 1 },
@@ -27,9 +27,9 @@ export function canClean(gameState: GameState, playerId: string): Position | nul
   const player = gameState.players.find((p) => p.id === playerId)
   if (!player || player.role !== "cleaner") return null
 
-  // Check adjacent cells for dirty trash cans
+  
   const adjacentPositions = [
-    { x: player.position.x, y: player.position.y }, // Same cell
+    { x: player.position.x, y: player.position.y }, 
     { x: player.position.x + 1, y: player.position.y },
     { x: player.position.x - 1, y: player.position.y },
     { x: player.position.x, y: player.position.y + 1 },
@@ -50,11 +50,11 @@ export function canReport(gameState: GameState, playerId: string): boolean {
   const player = gameState.players.find((p) => p.id === playerId)
   if (!player || player.role !== "cleaner") return false
 
-  // Find the contaminator
+ 
   const contaminator = gameState.players.find((p) => p.role === "contaminator")
   if (!contaminator) return false
 
-  // Check if contaminator is adjacent
+
   const distance =
     Math.abs(player.position.x - contaminator.position.x) + Math.abs(player.position.y - contaminator.position.y)
 
@@ -70,7 +70,7 @@ export function startContamination(gameState: GameState, playerId: string): Acti
     type: "contaminate",
     target,
     progress: 0,
-    duration: 5000, // 5 seconds
+    duration: 5000, 
   }
 }
 
@@ -83,7 +83,7 @@ export function startClean(gameState: GameState, playerId: string): Action | nul
     type: "clean",
     target,
     progress: 0,
-    duration: 5000, // 5 seconds
+    duration: 5000, 
   }
 }
 
@@ -94,7 +94,7 @@ export function startReport(gameState: GameState, playerId: string): Action | nu
     playerId,
     type: "report",
     progress: 0,
-    duration: 2000, // 2 seconds to take photo
+    duration: 2000, 
   }
 }
 
@@ -107,7 +107,7 @@ export function startUnblock(gameState: GameState, playerId: string): Action | n
     type: "unblock",
     target,
     progress: 0,
-    duration: 10000, // 10 seconds
+    duration: 10000, 
   }
 }
 
@@ -128,7 +128,7 @@ export function completeContamination(gameState: GameState, action: Action): Gam
     trash.isDirty = true
     trash.dirtyTime = Date.now()
 
-    // Update map
+   
     newState.map = newState.map.map((row, y) =>
       row.map((cell, x) => {
         if (x === action.target!.x && y === action.target!.y && cell === 2) {
@@ -152,26 +152,24 @@ export function completeContamination(gameState: GameState, action: Action): Gam
     if (allPCCsContaminated && !newState.criticalBlockActive) {
       newState.criticalBlockActive = true
       newState.dumpBlocked = true
-      newState.blockTimer = 20 // 20 seconds to win
+      newState.blockTimer = 20 
 
-      // Block dump entrances [14, 0] and [14, 1]
+      
       newState.map = newState.map.map((row, y) =>
         row.map((cell, x) => {
           if ((x === 14 && y === 0) || (x === 14 && y === 1)) {
-            return 8 // Blocked
+            return 8 
           }
           return cell
         }),
       )
 
-      // Contaminate ALL trash cans
       newState.trashCans = newState.trashCans.map((t) => ({
         ...t,
         isDirty: true,
         dirtyTime: t.isDirty ? t.dirtyTime : Date.now(),
       }))
 
-      // Update map to show all trash as dirty
       newState.map = newState.map.map((row) => row.map((cell) => (cell === 2 ? 3 : cell)))
     }
   }
@@ -189,7 +187,7 @@ export function completeClean(gameState: GameState, action: Action): GameState {
     trash.isDirty = false
     trash.dirtyTime = 0
 
-    // Update map
+  
     newState.map = newState.map.map((row, y) =>
       row.map((cell, x) => {
         if (x === action.target!.x && y === action.target!.y && cell === 3) {
@@ -206,7 +204,7 @@ export function completeClean(gameState: GameState, action: Action): GameState {
 export function completeReport(gameState: GameState, action: Action): GameState {
   const newState = { ...gameState }
 
-  // Check if contaminator is still adjacent and performing contamination action
+  
   const player = newState.players.find((p) => p.id === action.playerId)
   if (!player) return gameState
 
@@ -222,22 +220,21 @@ export function completeUnblock(gameState: GameState, action: Action): GameState
 
   const newState = { ...gameState }
 
-  // Unblock the dump entrance
+ 
   newState.map = newState.map.map((row, y) =>
     row.map((cell, x) => {
       if (x === action.target!.x && y === action.target!.y && cell === 8) {
-        return 7 // Change back to path
+        return 7 
       }
       return cell
     }),
   )
 
-  // Check if at least one entrance is unblocked
   const entrance1Blocked = newState.map[0][14] === 8
   const entrance2Blocked = newState.map[1][14] === 8
 
   if (!entrance1Blocked || !entrance2Blocked) {
-    // Stop critical blocking
+    
     newState.criticalBlockActive = false
     newState.dumpBlocked = false
     newState.blockTimer = 0
@@ -254,7 +251,7 @@ export function canBlockDump(gameState: GameState, playerId: string): boolean {
   const player = gameState.players.find((p) => p.id === playerId)
   if (!player || player.role !== "contaminator") return false
 
-  // Check if 3 key POIs are dirtied
+ 
   const keyPOIsDirtied = getKeyPOIsDirtied(gameState)
   return keyPOIsDirtied >= 3 && !gameState.dumpBlocked
 }
@@ -266,7 +263,7 @@ export function startBlockDump(gameState: GameState, playerId: string): Action |
     playerId,
     type: "block",
     progress: 0,
-    duration: 7000, // 7 seconds
+    duration: 7000, 
   }
 }
 
@@ -277,7 +274,7 @@ export function updateGameState(gameState: GameState, deltaTime: number): GameSt
   if (newState.criticalBlockActive && newState.dumpBlocked) {
     newState.blockTimer = Math.max(0, newState.blockTimer - deltaTime / 1000)
 
-    // Check if contaminator wins
+
     if (newState.blockTimer <= 0) {
       newState.gameOver = true
       newState.winner = "contaminator"
@@ -285,12 +282,11 @@ export function updateGameState(gameState: GameState, deltaTime: number): GameSt
     }
   }
 
-  // Update passive contamination
+ 
   newState.trashCans.forEach((trash) => {
     if (trash.isDirty && trash.dirtyTime > 0) {
       const timeDirty = (now - trash.dirtyTime) / 1000
 
-      // After 15 seconds, start contaminating nearby players
       if (timeDirty >= 15) {
         newState.players.forEach((player) => {
           if (player.role === "cleaner") {
@@ -309,26 +305,26 @@ export function updateGameState(gameState: GameState, deltaTime: number): GameSt
     }
   })
 
-  // Update contaminated players health
+
   newState.players.forEach((player) => {
     if (player.isContaminated && player.contaminatedTime > 0) {
       const timeContaminated = (now - player.contaminatedTime) / 1000
 
-      // After 8 seconds of being contaminated, start losing health
+    
       if (timeContaminated >= 8) {
         const healthLoss = Math.floor(timeContaminated - 8)
         player.health = Math.max(0, 10 - healthLoss)
       }
     }
 
-    // Check if at hospital and heal
+    
     if (isAtHospital(newState, player.id) && player.health < 10) {
-      player.health = Math.min(10, player.health + deltaTime / 1000) // Heal 1 HP per second (5 HP in 5 seconds)
+      player.health = Math.min(10, player.health + deltaTime / 1000) 
       player.isContaminated = false
       player.contaminatedTime = 0
     }
 
-    // Remove contamination if not near dirty trash
+   
     let nearDirtyTrash = false
     newState.trashCans.forEach((trash) => {
       if (trash.isDirty && trash.dirtyTime > 0) {
@@ -347,7 +343,6 @@ export function updateGameState(gameState: GameState, deltaTime: number): GameSt
     }
   })
 
-  // Check if all cleaners are dead
   const aliveCleaner = newState.players.find((p) => p.role === "cleaner" && p.health > 0)
   if (!aliveCleaner) {
     newState.gameOver = true
@@ -355,7 +350,7 @@ export function updateGameState(gameState: GameState, deltaTime: number): GameSt
     return newState
   }
 
-  // Check if cleaners win (5 reports)
+  
   if (newState.reports >= 5) {
     newState.gameOver = true
     newState.winner = "cleaners"
@@ -370,7 +365,7 @@ export function canUnblock(gameState: GameState, playerId: string): Position | n
   if (!player || player.role !== "cleaner") return null
   if (!gameState.criticalBlockActive) return null
 
-  // Check if adjacent to blocked dump entrance [14, 0] or [14, 1]
+
   const dumpEntrances = [
     { x: 14, y: 0 },
     { x: 14, y: 1 },
@@ -386,7 +381,7 @@ export function canUnblock(gameState: GameState, playerId: string): Position | n
 
   for (const pos of adjacentPositions) {
     if (dumpEntrances.some((entrance) => entrance.x === pos.x && entrance.y === pos.y)) {
-      // Check if this entrance is blocked (value 8)
+     
       if (gameState.map[pos.y][pos.x] === 8) {
         return pos
       }
@@ -400,7 +395,7 @@ export function isAtHospital(gameState: GameState, playerId: string): boolean {
   const player = gameState.players.find((p) => p.id === playerId)
   if (!player) return false
 
-  // Hospital is at position (4, 0) - one of the key POIs
+
   const hospitalPos = { x: 4, y: 0 }
   return player.position.x === hospitalPos.x && player.position.y === hospitalPos.y
 }

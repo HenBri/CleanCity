@@ -40,9 +40,9 @@ export function getTrashCans(map: CellType[][]): TrashCan[] {
   const trashCans: TrashCan[] = []
 
   const keyPOIs = [
-    { x: 4, y: 0 }, // [0, 4]
-    { x: 12, y: 2 }, // [2, 12]
-    { x: 0, y: 7 }, // [7, 0]
+    { x: 4, y: 0 }, 
+    { x: 12, y: 2 }, 
+    { x: 0, y: 7 }, 
   ]
 
   for (let y = 0; y < map.length; y++) {
@@ -65,17 +65,17 @@ export function getTrashCans(map: CellType[][]): TrashCan[] {
 export function getCellColor(cell: CellType): string {
   switch (cell) {
     case 0:
-      return "#a8d5ba" // Walkable - light green
+      return "#a8d5ba"
     case 1:
-      return "#5a5a5a" // Building - gray
+      return "#5a5a5a" 
     case 2:
-      return "#4caf50" // Clean trash - green
+      return "#4caf50" 
     case 3:
-      return "#f44336" // Dirty trash - red
+      return "#f44336" 
     case 7:
-      return "#90ee90" // Dump entrance - light green
+      return "#90ee90" 
     case 8:
-      return "#8b0000" // Blocked entrance - dark red
+      return "#8b0000" 
     default:
       return "#ffffff"
   }
